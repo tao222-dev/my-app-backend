@@ -93,15 +93,16 @@ app.post('/api/chat', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: data.error?.message || 'AI API 调用失败' });
+      console.error('API error:', response.status, JSON.stringify(data).slice(0, 500));
+      return res.status(response.status).json({ error: data.error?.message || `AI API 返回错误 (${response.status})` });
     }
 
     const reply = data.choices?.[0]?.message?.content || '（AI 未返回内容）';
 
     res.json({ reply });
   } catch (err) {
-    console.error('chat error:', err);
-    res.status(500).json({ error: '服务器内部错误' });
+    console.error('chat error:', err.message || err);
+    res.status(500).json({ error: '服务器内部错误: ' + (err.message || String(err)) });
   }
 });
 
